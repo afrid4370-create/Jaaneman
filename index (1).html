@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Valentine Surprise ❤️</title>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:grid;
+  place-items:center;
+  font-family:system-ui;
+  background:linear-gradient(135deg,#ffe6f0,#ffd6e7);
+  overflow:hidden;
+}
+
+/* ---------- CARD ---------- */
+.card{
+  background:#ffffffcc;
+  padding:30px;
+  border-radius:22px;
+  text-align:center;
+  width:min(720px,92vw);
+  box-shadow:0 20px 60px rgba(0,0,0,.15);
+}
+
+h1{
+  font-size:clamp(26px,4vw,42px);
+  margin-bottom:18px;
+}
+
+/* ---------- BUTTON ZONE ---------- */
+.zone{
+  position:relative;
+  height:150px;
+  margin-top:20px;
+}
+
+button{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  padding:15px 26px;
+  font-weight:800;
+  font-size:18px;
+  border:none;
+  border-radius:999px;
+  cursor:pointer;
+  transition:.15s;
+}
+
+#yes{
+  left:18%;
+  background:#ff3b7a;
+  color:white;
+}
+
+#no{
+  left:60%;
+  background:#e5e7eb;
+}
+
+.hint{
+  margin-top:10px;
+  font-size:14px;
+  opacity:.7;
+}
+
+.result{
+  display:none;
+  margin-top:20px;
+  animation:pop .4s ease;
+}
+
+@keyframes pop{
+  from{transform:scale(.9);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+
+/* ---------- FLOAT HEARTS ---------- */
+.heart{
+  position:fixed;
+  font-size:22px;
+  animation:float 2s linear forwards;
+}
+@keyframes float{
+  from{transform:translateY(0);opacity:1}
+  to{transform:translateY(-200px);opacity:0}
+}
+</style>
+</head>
+
+<body>
+
+<audio id="music" src="https://cdn.pixabay.com/audio/2022/03/15/audio_c4f30eddd6.mp3"></audio>
+<canvas id="confetti"></canvas>
+
+<div class="card">
+  <h1 id="title"></h1>
+
+  <div class="zone" id="zone">
+    <button id="yes">Yes ❤️</button>
+    <button id="no">No 😅</button>
+  </div>
+
+  <div class="hint" id="hint">No seems shy 😈</div>
+
+  <div class="result" id="result">
+    <h2>YAYYY 🥳❤️</h2>
+    <p>Now you're officially stuck with me forever 😎</p>
+  </div>
+</div>
+
+<script>
+/* ------------------ TYPE WRITER ------------------ */
+const text="Hey Miss Priti... will you be my Valentine? 💖";
+let i=0;
+const title=document.getElementById("title");
+
+function typeWriter(){
+  if(i<text.length){
+    title.innerHTML+=text.charAt(i);
+    i++;
+    setTimeout(typeWriter,40);
+  }
+}
+typeWriter();
+
+
+/* ------------------ BUTTONS ------------------ */
+const zone=document.getElementById("zone");
+const yes=document.getElementById("yes");
+const no=document.getElementById("no");
+const result=document.getElementById("result");
+const hint=document.getElementById("hint");
+
+let yesScale=1;
+
+/* YES grows */
+function growYes(){
+  yesScale=Math.min(2.3,yesScale+0.1);
+  yes.style.transform=`translateY(-50%) scale(${yesScale})`;
+}
+
+/* Funny messages */
+const msgs=[
+"Arey soch lo 😭",
+"Itna attitude kyun 😂",
+"Pleaseeee 👉👈",
+"Last chance madam 😜",
+"Yes hi dabao ❤️"
+];
+let msgIndex=0;
+
+function updateHint(){
+  hint.innerText=msgs[msgIndex%msgs.length];
+  msgIndex++;
+}
+
+/* NO runs */
+zone.addEventListener("mousemove",e=>{
+  const b=no.getBoundingClientRect();
+  const dx=(b.left+b.width/2)-e.clientX;
+  const dy=(b.top+b.height/2)-e.clientY;
+  const dist=Math.hypot(dx,dy);
+
+  if(dist<130){
+    const z=zone.getBoundingClientRect();
+
+    let newLeft=Math.random()*(z.width-100);
+    let newTop=Math.random()*(z.height-50);
+
+    no.style.left=newLeft+"px";
+    no.style.top=newTop+"px";
+    no.style.transform="none";
+
+    growYes();
+    updateHint();
+  }
+});
+
+
+/* ------------------ CONFETTI ------------------ */
+const canvas=document.getElementById("confetti");
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+
+const confettiInstance=confetti.create(canvas,{resize:true});
+
+/* hearts */
+function heartBurst(){
+  for(let i=0;i<30;i++){
+    const h=document.createElement("div");
+    h.innerText="❤️";
+    h.className="heart";
+    h.style.left=Math.random()*100+"vw";
+    h.style.top="80vh";
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),2000);
+  }
+}
+
+/* YES click */
+yes.onclick=()=>{
+  zone.style.display="none";
+  hint.style.display="none";
+  result.style.display="block";
+
+  document.getElementById("music").play();
+
+  heartBurst();
+
+  confettiInstance({
+    particleCount:300,
+    spread:140,
+    origin:{y:0.6}
+  });
+};
+</script>
+
+</body>
+</html>
